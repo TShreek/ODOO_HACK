@@ -1,7 +1,6 @@
-# main application
 from fastapi import FastAPI
-from .api import auth
-from .database import create_db_and_tables
+from api import auth
+from database import create_db_and_tables
 
 app = FastAPI()
 

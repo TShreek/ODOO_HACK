@@ -1,5 +1,4 @@
 # Database implementation
-
 from typing import Generator
 from sqlmodel import create_engine, Session, SQLModel
 from config import settings
@@ -16,7 +15,7 @@ def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 
-def get_db() -> Generator[Session, None, None]:
+def get_db() -> Generator:
     """
     Dependency to get a database session.
     """

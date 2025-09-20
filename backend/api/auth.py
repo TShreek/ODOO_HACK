@@ -20,7 +20,6 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
     if get_user_by_login_id(db, user_data.login_id):
         raise HTTPException(status_code=400, detail="Login ID already registered")
     
-    # We will register a new user with the 'invoicing_user' role by default.
     user = create_user(db, user_data, role_name="invoicing_user")
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)

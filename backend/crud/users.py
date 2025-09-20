@@ -17,7 +17,6 @@ def create_user(db: Session, user_data: UserCreate, role_name: str) -> User:
     """
     Creates a new user with a hashed password and a specific role.
     """
-    # Find the role first, or create a default one if needed
     role = db.exec(select(Role).where(Role.name == role_name)).first()
     if not role:
         role = Role(name=role_name)
