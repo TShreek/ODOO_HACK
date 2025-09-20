@@ -82,8 +82,10 @@ class TestAuthSystem:
         assert response.status_code == 201
         data = response.json()
         assert "access_token" in data
+        assert "refresh_token" in data
         assert data["token_type"] == "bearer"
         assert isinstance(data["access_token"], str)
+        assert isinstance(data["refresh_token"], str)
         assert len(data["access_token"]) > 0
 
     def test_duplicate_registration_fails(self):
@@ -112,8 +114,10 @@ class TestAuthSystem:
         assert response.status_code == 200
         data = response.json()
         assert "access_token" in data
+        assert "refresh_token" in data
         assert data["token_type"] == "bearer"
         assert isinstance(data["access_token"], str)
+        assert isinstance(data["refresh_token"], str)
 
     def test_login_with_wrong_password_fails(self):
         """Test that login with wrong password fails."""
@@ -208,7 +212,9 @@ class TestAuthSystem:
         
         register_response = client.post("/api/v1/register", json=user_data)
         assert register_response.status_code == 201
-        register_token = register_response.json()["access_token"]
+        register_payload = register_response.json()
+        register_token = register_payload["access_token"]
+        register_refresh = register_payload["refresh_token"]
         
         # Step 2: Login with same credentials
         login_data = {
@@ -218,13 +224,46 @@ class TestAuthSystem:
         
         login_response = client.post("/api/v1/login", json=login_data)
         assert login_response.status_code == 200
-        login_token = login_response.json()["access_token"]
+        login_payload = login_response.json()
+        login_token = login_payload["access_token"]
+        login_refresh = login_payload["refresh_token"]
         
         # Step 3: Use both tokens to access protected endpoint
         for token_name, token in [("register_token", register_token), ("login_token", login_token)]:
             headers = {"Authorization": f"Bearer {token}"}
             response = client.get("/api/v1/masters/contacts", headers=headers)
             assert response.status_code != 401, f"Token {token_name} should be valid"
+
+    def test_refresh_flow(self):
+        """Test refresh token rotation and logout revocation."""
+        user_data = {
+            "name": "Refresh Flow User",
+            "login_id": "refreshflow",
+            "email_id": "refreshflow@example.com",
+            "password": "refreshpass123"
+        }
+        reg_resp = client.post("/api/v1/register", json=user_data)
+        assert reg_resp.status_code == 201
+        payload = reg_resp.json()
+        refresh1 = payload["refresh_token"]
+
+        # Use refresh to get new pair
+        ref_resp = client.post("/api/v1/refresh", json={"refresh_token": refresh1})
+        assert ref_resp.status_code == 200
+        ref_payload = ref_resp.json()
+        refresh2 = ref_payload["refresh_token"]
+        assert refresh2 != refresh1
+
+        # Old refresh should now be revoked (rotation) -> second attempt fails
+        ref_resp_again = client.post("/api/v1/refresh", json={"refresh_token": refresh1})
+        assert ref_resp_again.status_code == 401
+
+        # Logout (revoke) new refresh
+        logout_resp = client.post("/api/v1/logout", json={"refresh_token": refresh2})
+        assert logout_resp.status_code == 200
+        # Cannot use revoked refresh
+        ref_after_logout = client.post("/api/v1/refresh", json={"refresh_token": refresh2})
+        assert ref_after_logout.status_code == 401
 
 
 if __name__ == "__main__":

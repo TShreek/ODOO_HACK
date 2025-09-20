@@ -4,6 +4,73 @@
 
 This is a FastAPI-based backend implementation for master data management in an accounting system. It provides REST APIs for managing Contacts, Products, Taxes, Chart of Accounts, and HSN code lookup.
 
+## Accounting Foundations (New)
+
+The backend now includes initial accounting primitives to enable double-entry bookkeeping and future financial reporting:
+
+- Ledger Models: `JournalEntry`, `JournalLine`, and `StockMove` (`models/ledger.py`).
+- Posting Service: `services/posting_service.py` with `create_journal_entry` validation (balanced debits/credits) and a helper `post_simple_invoice` generating AR / Sales / Tax lines.
+- Automatic Chart of Accounts seeding during startup (see `main.py`). Default seeded accounts include Cash, Bank, Accounts Receivable, Accounts Payable, Equity, Sales Income, Purchases Expense, Cost of Goods Sold, Inventory, Input Tax, Output Tax.
+
+### Programmatic Invoice Posting Example
+
+```python
+from services.posting_service import post_simple_invoice
+from decimal import Decimal
+from uuid import UUID
+
+entry = await post_simple_invoice(
+  session=db_session,
+  tenant_id=UUID("00000000-0000-0000-0000-000000000001"),
+  quantity=Decimal("2"),
+  unit_price=Decimal("50.00"),
+
+### Suggested Next Steps
+
+- Persist full invoice entities (header + lines) and link to `JournalEntry.doc_id`.
+- Add payments module with reconciliation logic (settle AR/AP lines).
+- Implement inventory valuation and posting for COGS.
+- Build reporting endpoints (Balance Sheet, P&L, Stock) aggregating `journal_lines`.
+- Expose REST endpoint for invoice posting / retrieval.
+
+---
+
+## Payments & Reconciliation
+
+Models `Payment` and `PaymentAllocation` plus helper `post_payment` (see `services/posting_service.py`). A payment posts:
+- Inbound: DR Cash/Bank, CR Accounts Receivable
+- Outbound: DR Accounts Payable, CR Cash/Bank
+
+Example:
+```python
+from services.posting_service import post_payment
+payment = await post_payment(
+  session,
+  tenant_id=tenant,
+  partner_id=customer_id,
+  amount=Decimal("250.00"),
+  direction="inbound",
+  method="cash"
+)
+```
+
+## Inventory & COGS (Moving Average)
+
+`services/inventory_service.py` provides:
+- `record_purchase_receipt` to add stock with cost
+- `record_sale_issue` (invoked inside invoice posting)
+
+Invoice posting now creates COGS and Inventory lines using moving average cost derived from prior moves.
+
+## Reporting Endpoints
+
+`/api/v1/reports`:
+- `GET /balance-sheet` returns assets, liabilities, equity.
+- `GET /pnl?start=YYYY-MM-DD&end=YYYY-MM-DD` returns income, expense, net profit.
+- `GET /stock` returns quantity on hand, inventory value, average cost per product.
+
+Backed by real-time aggregation on `journal_lines` and `stock_moves`.
+
 ## Features
 
 - **Async SQLAlchemy 2.0** with PostgreSQL
@@ -286,5 +353,22 @@ backend/
 - Async operations throughout
 - Pagination for large result sets
 - Efficient database queries with proper indexing
+
+#### Reporting Optimization (New)
+To improve financial & stock report performance as data grows:
+- Added composite indexes: `journal_lines (tenant_id, account_id, created_at)`; partner variant; `stock_moves (tenant_id, product_id, created_at)`.
+- Introduced `account_daily_balances` table for cached daily aggregates via `rebuild_daily_balances` (endpoint: `POST /api/v1/reports/cache/rebuild`).
+- Added cached P&L endpoint `GET /api/v1/reports/pnl/cached` reading from daily balances instead of raw lines.
+
+Workflow for high performance:
+```bash
+# Nightly (cron / scheduled task)
+curl -X POST "http://localhost:8000/api/v1/reports/cache/rebuild"
+
+# Query cached P&L
+curl "http://localhost:8000/api/v1/reports/pnl/cached?start=2025-01-01&end=2025-01-31"
+```
+
+Future improvements: incremental updates (append-only), materialized views (PostgreSQL), partitioning journal tables by month for very large datasets.
 
 This completes the Master Data Backend implementation for your ODOO_HACK project!

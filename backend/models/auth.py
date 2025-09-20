@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 from typing import Optional, List
-from sqlalchemy import String, DateTime, ForeignKey
+from sqlalchemy import String, DateTime, ForeignKey, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -67,3 +67,30 @@ class User(Base):
         nullable=False
     )
     role: Mapped["Role"] = relationship("Role", back_populates="users")
+
+
+class RefreshToken(Base):
+    """
+    Persistent refresh tokens for session continuity.
+    We store only a hash of the token to allow secure revocation.
+    Rotation strategy: each use invalidates the old token (revoked_at set) and issues a new one.
+    """
+    __tablename__ = "refresh_tokens"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False
+    )
+    token_hash: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)
+    revoked_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, index=True)
+    replaced_by: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), nullable=True)
+    user: Mapped["User"] = relationship("User")

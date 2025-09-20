@@ -16,6 +16,7 @@ dependencies = [
     "pyjwt>=2.8.0",
     "python-multipart>=0.0.6",
     "aiosqlite>=0.21.0",
+    "alembic>=1.13.1",
 ]
 
 [project.optional-dependencies]
@@ -24,4 +25,24 @@ test = [
     "pytest-asyncio>=0.21.0",
     "httpx>=0.25.0",
     "aiosqlite>=0.19.0",
+    "pytest-cov>=4.1.0",
+    "alembic>=1.13.1",
 ]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = [
+    "api",
+    "crud",
+    "models",
+    "schemas",
+    "services",
+    "infrastructure",
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov=models --cov=crud --cov=api --cov=services --cov-report=term-missing --cov-fail-under=80"
+asyncio_mode = "auto"

@@ -36,62 +36,69 @@ FALLBACK_HSN_DATA = [
 ]
 
 
-async def search_hsn_external_api(query: str) -> Optional[List[HSNItem]]:
-    """
-    Search HSN codes using external API.
-    Returns None if API is unavailable or fails.
+async def search_hsn_external_api(
+    input_text: str,
+    selected_type: Optional[str] = None,
+    category: Optional[str] = None,
+    limit: int = 20,
+) -> Optional[List[HSNItem]]:
+    """Search HSN codes using external API with official style parameters.
+
+    Args:
+        input_text: Raw user input (maps to inputText on external API)
+        selected_type: byCode | byDesc (maps to selectedType) optional
+        category: P | S or None (maps to category) optional
+        limit: Max items to request
+
+    Returns:
+        List of HSNItem or None if external API unavailable/fails.
     """
     hsn_api_url = os.getenv("HSN_API_URL")
     hsn_api_key = os.getenv("HSN_API_KEY")
-    
+
     if not hsn_api_url:
         return None
-    
+
     try:
-        # Configure request headers
         headers = {}
         if hsn_api_key:
             headers["Authorization"] = f"Bearer {hsn_api_key}"
-            # or headers["X-API-Key"] = hsn_api_key  # depending on API
-        
-        # Make async HTTP request with timeout
+
+        params = {
+            # External API expected naming (camelCase)
+            "inputText": input_text,
+            "limit": limit,
+        }
+        if selected_type:
+            params["selectedType"] = selected_type
+        if category:
+            params["category"] = category
+
         async with httpx.AsyncClient(timeout=5.0) as client:
-            response = await client.get(
-                hsn_api_url,
-                params={"q": query, "limit": 20},
-                headers=headers
-            )
+            response = await client.get(hsn_api_url, params=params, headers=headers)
             response.raise_for_status()
-            
-            # Parse response based on expected API format
-            # This example assumes the API returns JSON with an 'items' array
             data = response.json()
-            
-            # Map API response to our HSNItem schema
-            hsn_items = []
+
+            hsn_items: List[HSNItem] = []
             api_items = data.get("items", []) if isinstance(data, dict) else data
-            
+
             for item in api_items:
                 try:
-                    # Adapt field mapping based on actual API response structure
                     hsn_item = HSNItem(
                         hsn_code=str(item.get("hsn_code", item.get("code", ""))),
                         description=str(item.get("description", item.get("desc", ""))),
                         gst_rate=Decimal(str(item.get("gst_rate", item.get("tax_rate", 0))))
                     )
                     hsn_items.append(hsn_item)
-                except (ValueError, ValidationError, KeyError) as e:
-                    # Skip invalid items but continue processing
+                except (ValueError, ValidationError, KeyError):
                     continue
-            
+
             return hsn_items
-            
+
     except (httpx.HTTPError, httpx.TimeoutException, ValidationError, KeyError) as e:
-        # Log error in production
         print(f"HSN API error: {e}")
         return None
     except Exception as e:
-        # Catch any other unexpected errors
         print(f"Unexpected HSN API error: {e}")
         return None
 
@@ -116,7 +123,11 @@ def search_hsn_fallback(query: str) -> List[HSNItem]:
     return filtered_items
 
 
-async def search_hsn(query: str) -> HSNSearchResult:
+async def search_hsn(
+    query: str,
+    selected_type: Optional[str] = None,
+    category: Optional[str] = None,
+) -> HSNSearchResult:
     """
     Search HSN codes with external API and fallback to local data.
     
@@ -127,30 +138,37 @@ async def search_hsn(query: str) -> HSNSearchResult:
         HSNSearchResult with items and source information
     """
     if not query or len(query.strip()) < 2:
-        # For very short queries, use fallback directly
         fallback_items = search_hsn_fallback(query)
         return HSNSearchResult(
             query=query,
             items=fallback_items,
-            source="fallback"
+            source="fallback",
+            selected_type=selected_type,
+            category=category,
         )
-    
-    # Try external API first
-    external_items = await search_hsn_external_api(query.strip())
-    
+
+    external_items = await search_hsn_external_api(
+        input_text=query.strip(),
+        selected_type=selected_type,
+        category=category,
+    )
+
     if external_items is not None and len(external_items) > 0:
         return HSNSearchResult(
             query=query,
             items=external_items,
-            source="external_api"
+            source="external_api",
+            selected_type=selected_type,
+            category=category,
         )
-    
-    # Fall back to local data
+
     fallback_items = search_hsn_fallback(query.strip())
     return HSNSearchResult(
         query=query,
         items=fallback_items,
-        source="fallback"
+        source="fallback",
+        selected_type=selected_type,
+        category=category,
     )
 
 

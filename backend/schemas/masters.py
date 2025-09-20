@@ -162,6 +162,8 @@ class HSNSearchResult(BaseModel):
     query: str
     items: List[HSNItem]
     source: str  # "external_api" or "fallback"
+    selected_type: str | None = None  # byCode | byDesc
+    category: str | None = None  # null | P | S
 
 
 # Pagination and List Response Schemas

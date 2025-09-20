@@ -329,9 +329,25 @@ async def update_account_endpoint(
 @router.get("/hsn", response_model=HSNSearchResult)
 async def search_hsn_endpoint(
     q: str = Query(..., min_length=1, description="Search query for HSN codes or descriptions"),
+    selectedType: Optional[str] = Query(None, pattern="^(byCode|byDesc)$", description="Search mode: byCode or byDesc"),
+    category: Optional[str] = Query(None, pattern="^(P|S)$", description="Product (P) or Service (S) category filter"),
     current_user: CurrentUser = Depends(get_current_user)
 ):
+    """Search HSN codes/descriptions.
+
+    Parameters:
+      q: user input (code fragment or description text)
+      selectedType: byCode | byDesc (optional). If omitted we infer: all digits -> byCode else byDesc.
+      category: P | S optional. If omitted we leave None (external API may broaden search).
+
+    Backwards compatibility: Existing callers only providing q still work; heuristics supply selectedType.
     """
-    Search HSN codes and descriptions using external API with fallback to local data.
-    """
-    return await search_hsn(q)
+    inferred_type = selectedType
+    if inferred_type is None:
+        if q.isdigit():
+            inferred_type = "byCode"
+        else:
+            inferred_type = "byDesc"
+
+    # Pass through; category may remain None
+    return await search_hsn(q, selected_type=inferred_type, category=category)

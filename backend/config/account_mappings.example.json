@@ -1,0 +1,11 @@
+{
+  "inventory_account": "1200",
+  "ap_account": "2000",
+  "ar_account": "1100",
+  "sales_account": "4000",
+  "purchases_account": "5000",
+  "cogs_account": "5100",
+  "cash_account": "1000",
+  "input_gst_account": "2100",
+  "output_gst_account": "4100"
+}
