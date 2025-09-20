@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers
 from api import auth, masters
@@ -30,6 +31,15 @@ app = FastAPI(
     description="Master Data Management API for accounting system",
     version="1.0.0",
     lifespan=lifespan
+)
+
+# CORS for local static demo (adjust origins for production)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Include API routers

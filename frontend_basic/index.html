@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ODOO_HACK Demo Frontend</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>ODOO_HACK — Basic Frontend</h1>
+      <div id="api-base">
+        API: <input id="apiBase" value="http://localhost:8000" />
+        <button id="saveApiBase">Save</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Register</h2>
+        <div class="row"><label>Name</label><input id="regName" placeholder="Jane Doe" /></div>
+        <div class="row"><label>Login ID</label><input id="regLoginId" placeholder="janedoe" /></div>
+        <div class="row"><label>Email</label><input id="regEmail" placeholder="jane@example.com" /></div>
+        <div class="row"><label>Password</label><input id="regPassword" type="password" placeholder="••••••••" /></div>
+        <button id="btnRegister">Register</button>
+        <pre class="log" id="regLog"></pre>
+      </section>
+
+      <section class="card">
+        <h2>Login</h2>
+        <div class="row"><label>Login ID</label><input id="loginLoginId" placeholder="janedoe" /></div>
+        <div class="row"><label>Password</label><input id="loginPassword" type="password" placeholder="••••••••" /></div>
+        <button id="btnLogin">Login</button>
+        <div class="token">Token: <span id="tokenPreview">(none)</span></div>
+        <pre class="log" id="loginLog"></pre>
+      </section>
+
+      <section class="card">
+        <h2>Contacts</h2>
+        <div class="row-inline">
+          <input id="contactName" placeholder="Contact name" />
+          <input id="contactEmail" placeholder="email@example.com" />
+          <input id="contactPhone" placeholder="+11234567890" />
+          <button id="btnCreateContact">Create</button>
+          <button id="btnListContacts">List</button>
+        </div>
+        <table id="contactsTable">
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>ID</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <pre class="log" id="contactsLog"></pre>
+      </section>
+    </main>
+
+    <footer>
+      <small>Demo only. Token stored in localStorage.</small>
+    </footer>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
