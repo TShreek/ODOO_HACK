@@ -3,6 +3,7 @@
   const state = {
     apiBase: localStorage.getItem("apiBase") || "http://localhost:8000",
     token: localStorage.getItem("token") || "",
+    theme: localStorage.getItem("theme") || "dark", // default dark
   };
 
   const setApiBase = (v) => {
@@ -13,6 +14,17 @@
     state.token = t || "";
     localStorage.setItem("token", state.token);
     $("tokenPreview").textContent = state.token ? state.token.slice(0, 18) + "..." : "(none)";
+  };
+
+  const applyTheme = () => {
+    document.documentElement.setAttribute("data-theme", state.theme);
+    const btn = $("themeToggle");
+    if (btn) btn.textContent = state.theme === "dark" ? "Dark ▾" : "Light ▾";
+  };
+  const toggleTheme = () => {
+    state.theme = state.theme === "dark" ? "light" : "dark";
+    localStorage.setItem("theme", state.theme);
+    applyTheme();
   };
 
   const headers = (json = true) => {
@@ -103,6 +115,10 @@
   function init() {
     $("apiBase").value = state.apiBase;
     $("saveApiBase").addEventListener("click", () => setApiBase($("apiBase").value.trim()));
+    const toggle = $("themeToggle");
+    if (toggle) toggle.addEventListener("click", toggleTheme);
+    applyTheme();
+
     $("btnRegister").addEventListener("click", register);
     $("btnLogin").addEventListener("click", login);
     $("btnCreateContact").addEventListener("click", createContact);
