@@ -7,11 +7,13 @@ requires-python = ">=3.11"
 dependencies = [
     "alembic>=1.16.5",
     "asyncpg>=0.30.0",
+    "bcrypt>=4.3.0",
     "fastapi[all]>=0.116.2",
     "greenlet>=3.2.4",
     "jwt>=1.4.0",
     "passlib[bcrypt]>=1.7.4",
     "psycopg[binary]>=3.2.10",
+    "pyjwt>=2.10.1",
     "python-jose>=3.5.0",
     "sqlmodel>=0.0.25",
 ]
