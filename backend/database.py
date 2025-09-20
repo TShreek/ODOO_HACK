@@ -1,23 +1,44 @@
-# Database implementation
-from typing import Generator
-from sqlmodel import create_engine, Session, SQLModel
-from shiv_accounts_cloud.config import settings
-from shiv_accounts_cloud.models import auth
+# Database implementation - Async SQLAlchemy 2.0
+from typing import AsyncGenerator
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.orm import DeclarativeBase
+from config import settings
 
 
-engine = create_engine(settings.DATABASE_URL, echo=True)
+class Base(DeclarativeBase):
+    """SQLAlchemy declarative base for all models."""
+    pass
 
 
-def create_db_and_tables():
+# Create async engine
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    echo=True,
+    future=True
+)
+
+# Create async session factory
+AsyncSessionLocal = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+
+async def create_db_and_tables():
     """
-    Creates all tables in the database based on the SQLModel definitions.
+    Creates all tables in the database based on the SQLAlchemy model definitions.
     """
-    SQLModel.metadata.create_all(engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
-def get_db() -> Generator[Session, None, None]:
+async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     """
-    Dependency to get a database session.
+    Dependency to get an async database session.
     """
-    with Session(engine) as session:
-        yield session
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
