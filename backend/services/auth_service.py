@@ -11,7 +11,7 @@ from shiv_accounts_cloud.schemas.auth import UserLogin, Token
 
 
 # Placeholder for environment variables. We will define these in config.py
-SECRET_KEY = "your-secret-key"
+SECRET_KEY = "ASASASASASASAA"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
