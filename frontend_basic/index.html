@@ -22,6 +22,59 @@
     </header>
 
     <main>
+      <!-- Dashboard Section -->
+      <section class="card dashboard" id="dashboard">
+        <div class="dash-header">
+          <h2>Dashboard</h2>
+          <div class="dash-subtitle">Real-time overview of cashflow, KPIs and recent activity</div>
+        </div>
+        <div class="dash-grid">
+          <!-- Flow Canvas -->
+          <div class="dash-flow">
+            <canvas id="flowCanvas" class="flow-canvas" width="1200" height="220" aria-label="Cashflow stream"></canvas>
+            <div class="flow-legend">
+              <span class="pill inflow">Inflow</span>
+              <span class="pill outflow">Outflow</span>
+            </div>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="kpis">
+            <div class="kpi">
+              <div class="kpi-label">MTD Revenue</div>
+              <div class="kpi-value" id="kpiRevenue">—</div>
+              <svg class="spark" viewBox="0 0 100 32" preserveAspectRatio="none"><polyline id="sparkRevenue" points=""/></svg>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">MTD Expense</div>
+              <div class="kpi-value" id="kpiExpense">—</div>
+              <svg class="spark" viewBox="0 0 100 32" preserveAspectRatio="none"><polyline id="sparkExpense" points=""/></svg>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Net Income</div>
+              <div class="kpi-value" id="kpiNet">—</div>
+              <svg class="spark" viewBox="0 0 100 32" preserveAspectRatio="none"><polyline id="sparkNet" points=""/></svg>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Cash Balance</div>
+              <div class="kpi-value" id="kpiCash">—</div>
+              <svg class="spark" viewBox="0 0 100 32" preserveAspectRatio="none"><polyline id="sparkCash" points=""/></svg>
+            </div>
+          </div>
+
+          <!-- Ledger Ticker -->
+          <div class="ticker">
+            <div class="ticker-header">
+              <div>Recent Activity</div>
+              <button id="pauseTicker" class="mini-btn" title="Pause/Resume">⏯</button>
+            </div>
+            <ul id="tickerList" class="ticker-list" aria-live="polite">
+              <!-- items will stream here -->
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="card">
         <h2>Register</h2>
         <div class="row"><label>Name</label><input id="regName" placeholder="Jane Doe" /></div>
