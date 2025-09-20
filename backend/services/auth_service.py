@@ -2,10 +2,11 @@
 # Core logic that makes our authentication system secure.
 
 import bcrypt
-import jwt
+import jwt as pyjwt
 from datetime import datetime, timedelta
 from typing import Optional
 
+from schemas.auth import UserLogin, Token
 from config import settings
 
 
@@ -19,6 +20,7 @@ def get_hashed_password(password: str) -> str:
 def verify_password(password: str, hashed_password: str) -> bool:
     """
     Verifies a password against its hash.
+    Correctly uses bcrypt.checkpw().
     """
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
@@ -34,5 +36,5 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     else:
         expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    encoded_jwt = pyjwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
