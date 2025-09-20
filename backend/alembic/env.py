@@ -12,6 +12,7 @@ from database import Base
 from models.auth import User, Role
 from models.masters import Contact, Product, Tax, ChartOfAccounts
 from models.transactions import Transaction, TransactionLine, JournalEntry
+from models.events import ProcessedEvent
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
