@@ -21,8 +21,9 @@
   --warn: var(--peach);
 }
 
-/* Light theme overrides */
-[data-theme="light"] {
+/* Light theme overrides (brown palette default) */
+[data-theme="light"][data-palette="brown"],
+[data-theme="light"]:not([data-palette]) {
   --bg: #fffdf7;                    /* off-white base */
   --bg-accent: radial-gradient(900px 520px at 10% -10%, #fff6d8 0%, #fffdf7 60%),
                radial-gradient(900px 520px at 90% -20%, #ffeec0 0%, transparent 60%);
@@ -37,6 +38,77 @@
   --warn: var(--peach);
 }
 
+/* Palette variants by data-palette */
+/* Default palette is already defined via root variables (brown/peach) */
+
+/* Ocean: teal/blue */
+[data-palette="ocean"] {
+  --falu-red: #0f766e;   /* deep teal accent */
+  --lion: #38bdf8;       /* sky blue */
+  --bistre: #0b1220;     /* deep navy */
+  --brown: #1e3a8a;      /* indigo secondary */
+  --peach: #c7f9ff;      /* ice */
+
+  --bg: var(--bistre);
+  --bg-accent: radial-gradient(900px 520px at 12% 0%, #0c1b36 0%, var(--bistre) 55%),
+               radial-gradient(800px 600px at 88% -10%, #051427 0%, var(--bistre) 60%);
+  --card: #0f1b34;
+  --text: #e7f6ff;
+  --muted: #a5c5de;
+  --border: #173053;
+  --accent: var(--lion);
+  --accent-2: var(--falu-red);
+  --danger: #ef4444;
+  --warn: #fde68a;
+}
+
+/* Ocean light */
+[data-theme="light"][data-palette="ocean"] {
+  --bg: #f3fbff; /* very light blue */
+  --bg-accent: radial-gradient(900px 520px at 10% -10%, #e6f6ff 0%, #f3fbff 60%),
+               radial-gradient(900px 520px at 90% -20%, #e0f2fe 0%, transparent 60%);
+  --card: #e8f4ff;
+  --text: #0b1220;
+  --muted: #204a6a;
+  --border: #c6e3f7;
+  --accent: #1fa2e6; /* brighter ocean button */
+  --accent-2: #0f766e;
+}
+
+/* Forest: green/earth */
+[data-palette="forest"] {
+  --falu-red: #166534;   /* deep green accent */
+  --lion: #84cc16;       /* lime */
+  --bistre: #0b1110;     /* evergreen night */
+  --brown: #3f6212;      /* olive */
+  --peach: #eaffc7;      /* pale moss */
+
+  --bg: var(--bistre);
+  --bg-accent: radial-gradient(900px 520px at 8% -10%, #112018 0%, var(--bistre) 55%),
+               radial-gradient(900px 520px at 92% -20%, #0a160f 0%, var(--bistre) 60%);
+  --card: #0f1a14;
+  --text: #eaf7ef;
+  --muted: #b7d2bf;
+  --border: #163a26;
+  --accent: var(--lion);
+  --accent-2: var(--falu-red);
+  --danger: #dc2626;
+  --warn: #fde68a;
+}
+
+/* Forest light */
+[data-theme="light"][data-palette="forest"] {
+  --bg: #f4fff6; /* misty leaf */
+  --bg-accent: radial-gradient(900px 520px at 10% -10%, #ebffe9 0%, #f4fff6 60%),
+               radial-gradient(900px 520px at 90% -20%, #e7ffe6 0%, transparent 60%);
+  --card: #eaf7ef;
+  --text: #102018;
+  --muted: #274a36;
+  --border: #cde8d7;
+  --accent: #4caf50; /* fresh leaf button */
+  --accent-2: #166534;
+}
+
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
@@ -47,7 +119,7 @@ body {
   background-image: var(--bg-accent);
 }
 
-:where(button, input, table, .card) { transition: all 160ms ease; }
+:where(button, input, table, .card, select.palette-select) { transition: all 160ms ease; }
 
 header {
   display:flex; justify-content:space-between; align-items:center;
@@ -75,6 +147,22 @@ h1 { margin:0; font-size:20px; letter-spacing:0.3px; }
 /* Theme toggle button variant */
 .theme-btn { background: var(--accent-2) !important; color: color-mix(in oklab, var(--text), #000 75%) !important; }
 .theme-btn:hover { filter: brightness(1.06); }
+
+/* Aesthetic palette dropdown */
+.palette-select {
+  -webkit-appearance: none; appearance: none;
+  padding: 8px 36px 8px 12px; margin-left: 8px;
+  border-radius: 8px; border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--card), #0000 35%);
+  color: var(--text); font-weight: 600; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, color-mix(in oklab, var(--text), #000 25%) 50%),
+                    linear-gradient(135deg, color-mix(in oklab, var(--text), #000 25%) 50%, transparent 50%);
+  background-position: right 12px top 16px, right 6px top 16px;
+  background-size: 8px 8px, 8px 8px;
+  background-repeat: no-repeat;
+}
+.palette-select:hover { filter: brightness(1.06); }
+.palette-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent), #0000 75%); }
 
 main {
   max-width: 1100px; margin: 22px auto; padding: 0 16px;

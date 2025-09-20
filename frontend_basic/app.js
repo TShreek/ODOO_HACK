@@ -4,6 +4,7 @@
     apiBase: localStorage.getItem("apiBase") || "http://localhost:8000",
     token: localStorage.getItem("token") || "",
     theme: localStorage.getItem("theme") || "dark", // default dark
+    palette: localStorage.getItem("palette") || "brown", // default to user's palette
   };
 
   const setApiBase = (v) => {
@@ -18,12 +19,20 @@
 
   const applyTheme = () => {
     document.documentElement.setAttribute("data-theme", state.theme);
+    document.documentElement.setAttribute("data-palette", state.palette);
     const btn = $("themeToggle");
     if (btn) btn.textContent = state.theme === "dark" ? "Dark ▾" : "Light ▾";
+    const sel = $("paletteSelect");
+    if (sel) sel.value = state.palette;
   };
   const toggleTheme = () => {
     state.theme = state.theme === "dark" ? "light" : "dark";
     localStorage.setItem("theme", state.theme);
+    applyTheme();
+  };
+  const setPalette = (p) => {
+    state.palette = p;
+    localStorage.setItem("palette", state.palette);
     applyTheme();
   };
 
@@ -117,6 +126,8 @@
     $("saveApiBase").addEventListener("click", () => setApiBase($("apiBase").value.trim()));
     const toggle = $("themeToggle");
     if (toggle) toggle.addEventListener("click", toggleTheme);
+    const paletteSelect = $("paletteSelect");
+    if (paletteSelect) paletteSelect.addEventListener("change", (e) => setPalette(e.target.value));
     applyTheme();
 
     $("btnRegister").addEventListener("click", register);
