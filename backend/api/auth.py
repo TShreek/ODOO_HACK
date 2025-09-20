@@ -2,12 +2,12 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
-from shiv_accounts_cloud.database import get_db
-from shiv_accounts_cloud.schemas.auth import UserCreate, UserLogin, Token
-from shiv_accounts_cloud.crud.users import create_user, get_user_by_login_id
-from shiv_accounts_cloud.services.auth_service import verify_password, create_access_token
+from database import get_db
+from schemas.auth import UserCreate, UserLogin, Token
+from crud.users import create_user, get_user_by_login_id
+from services.auth_service import verify_password, create_access_token
 from datetime import timedelta
-from shiv_accounts_cloud.config import settings
+from config import settings
 
 router = APIRouter(tags=["Auth"])
 

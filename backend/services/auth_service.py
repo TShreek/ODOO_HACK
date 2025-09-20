@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from fastapi import HTTPException
 from typing import Optional
 
-from shiv_accounts_cloud.schemas.auth import UserLogin, Token
+from schemas.auth import UserLogin, Token
 
 
 # Placeholder for environment variables. We will define these in config.py

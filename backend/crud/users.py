@@ -1,9 +1,9 @@
 # This file handles the database interactions for user-related data.
 
 from sqlmodel import Session, select
-from shiv_accounts_cloud.models.auth import User, Role
-from shiv_accounts_cloud.schemas.auth import UserCreate
-from shiv_accounts_cloud.services.auth_service import get_hashed_password
+from models.auth import User, Role
+from schemas.auth import UserCreate
+from services.auth_service import get_hashed_password
 
 
 def get_user_by_login_id(db: Session, login_id: str) -> User | None:

@@ -1,8 +1,9 @@
 # Database implementation
+
 from typing import Generator
 from sqlmodel import create_engine, Session, SQLModel
-from shiv_accounts_cloud.config import settings
-from shiv_accounts_cloud.models import auth
+from config import settings
+from models import auth
 
 
 engine = create_engine(settings.DATABASE_URL, echo=True)
