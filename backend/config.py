@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost:5432/odoo_hack"
     
     # Authentication
-    SECRET_KEY: str = "CHANGE_THIS_IN_PRODUCTION"
+    SECRET_KEY: str = "ODOO_IS_AWESOME"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
