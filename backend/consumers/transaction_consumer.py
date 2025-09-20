@@ -26,6 +26,12 @@ async def handle_event(event: Dict[str, Any]):
         print("[consumer] skipping invalid event (missing:", missing, ")")
         return
 
+    # Set default account IDs in the payload
+    p = event.setdefault("payload", {})
+    p.setdefault("ar_account_id", settings.AR_ACCOUNT_ID)
+    p.setdefault("revenue_account_id", settings.REVENUE_ACCOUNT_ID)
+    p.setdefault("tax_payable_account_id", settings.TAX_ACCOUNT_ID)
+
     async with AsyncSessionLocal() as session:
         # Use ONE explicit transaction for the whole flow
         async with session.begin():
@@ -74,7 +80,11 @@ def _parse_bootstrap(val) -> list[str]:
 
 BOOTSTRAPS = _parse_bootstrap(settings.KAFKA_BOOTSTRAP_SERVERS)
 
-dlq = KafkaProducer(bootstrap_servers=BOOTSTRAPS, value_serializer=lambda v: json.dumps(v).encode("utf-8"))
+DLQ_TOPIC = "financial_transactions_dlq"
+_dlq = KafkaProducer(
+    bootstrap_servers=BOOTSTRAPS,
+    value_serializer=lambda v: json.dumps(v).encode("utf-8"),
+)
 
 async def main():
     consumer = KafkaConsumer(
@@ -97,17 +107,29 @@ async def main():
                         print(f"[consumer] committed offset {m.offset} on p{m.partition}")
                     except Exception as e:
                         print("[consumer] error, NOT committing:", e)
-                        # Add to DLQ and mark as failed
-                        from models.events import ProcessedEvent
-                        async with AsyncSessionLocal() as session:
-                            async with session.begin():
-                                session.add(ProcessedEvent(
-                                    event_id=m.value.get("event_id") or uuid.uuid4(),
-                                    event_hash=_calc_hash(m.value),
-                                    status="failed",
-                                    error_text=str(e),
-                                ))
-                        dlq.send("financial_transactions_dlq", m.value)
+
+                        # mark failed in processed_events (best-effort)
+                        try:
+                            async with AsyncSessionLocal() as s:
+                                async with s.begin():
+                                    evt = m.value if isinstance(m.value, dict) else {}
+                                    ev_id = evt.get("event_id") or str(uuid.uuid4())
+                                    s.add(ProcessedEvent(
+                                        event_id=ev_id,
+                                        event_hash=_calc_hash(evt) if evt else "unknown",
+                                        status="failed",
+                                        error_text=str(e)[:500],
+                                    ))
+                        except Exception as ie:
+                            print("[consumer] failed to record failure:", ie)
+
+                        # send original to DLQ (best-effort)
+                        try:
+                            _dlq.send(DLQ_TOPIC, m.value if isinstance(m.value, dict) else {"raw": str(m.value)})
+                        except Exception as pe:
+                            print("[consumer] failed to send to DLQ:", pe)
+
+                        # do not commit offset; move to next message
     finally:
         consumer.close()
 

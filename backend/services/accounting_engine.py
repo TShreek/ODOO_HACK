@@ -2,7 +2,7 @@
 from datetime import datetime
 from decimal import Decimal
 from typing import Dict, List
-from config import settings  # <-- add this
+from config import settings  # <-- important
 
 def generate_entries(event: Dict) -> List[Dict]:
     # pull fields
@@ -22,9 +22,9 @@ def generate_entries(event: Dict) -> List[Dict]:
     gross = net + tax
 
     # use env-configured accounts (seeded for TEST_TENANT_ID)
-    AR  = payload.get("ar_account_id")        or settings.AR_ACCOUNT_ID
-    REV = payload.get("revenue_account_id")   or settings.REVENUE_ACCOUNT_ID
-    TAX = payload.get("tax_payable_account_id") or settings.TAX_ACCOUNT_ID
+    AR  = payload.get("ar_account_id")           or settings.AR_ACCOUNT_ID
+    REV = payload.get("revenue_account_id")      or settings.REVENUE_ACCOUNT_ID
+    TAX = payload.get("tax_payable_account_id")  or settings.TAX_ACCOUNT_ID
 
     desc = f"Invoice {payload.get('invoice_number','')}"
     creator = settings.SYSTEM_USER_ID  # NOT NULL fix
