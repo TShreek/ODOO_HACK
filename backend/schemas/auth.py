@@ -1,9 +1,8 @@
 # Define blueprint for the input from Front-end
 from pydantic import BaseModel, EmailStr
-from sqlmodel import SQLModel
 
 
-class UserBase(SQLModel):
+class UserBase(BaseModel):
     """
     Base schema for user data.
     """
