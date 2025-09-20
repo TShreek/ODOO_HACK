@@ -61,6 +61,8 @@ async def handle_event(event: Dict[str, Any]):
 
             # 3) insert rows
             for e in entries:
+                # ensure created_by is set
+                e.setdefault("created_by", settings.SYSTEM_USER_ID)
                 session.add(JournalEntry(**e))
 
             # 4) mark processed
@@ -72,11 +74,16 @@ async def handle_event(event: Dict[str, Any]):
         # exiting the 'with session.begin()' commits successfully
 
 def _parse_bootstrap(val) -> list[str]:
+    # Accept list/tuple or string; strip brackets/quotes/whitespace
     if isinstance(val, (list, tuple)):
-        return [str(x).strip() for x in val if str(x).strip()]
-    if isinstance(val, str):
-        return [s.strip().strip('"').strip("'") for s in val.split(",") if s.strip()]
-    return [str(val).strip()]
+        return [str(x).strip().strip('"').strip("'") for x in val if str(x).strip()]
+    s = str(val).strip()
+    # remove JSON-ish brackets if present
+    s = s.replace("[", "").replace("]", "")
+    # remove any quotes anywhere
+    s = s.replace('"', "").replace("'", "")
+    parts = [p.strip() for p in s.split(",") if p.strip()]
+    return parts
 
 BOOTSTRAPS = _parse_bootstrap(settings.KAFKA_BOOTSTRAP_SERVERS)
 

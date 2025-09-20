@@ -1,183 +1,103 @@
 # backend/api/transactions.py
-import uuid, datetime
-from decimal import Decimal
-from fastapi import APIRouter
-from database import AsyncSessionLocal
-from config import settings
-from services.tx_headers import create_transaction_header
+from fastapi import APIRouter, Depends, Body
+from pydantic import BaseModel
+from datetime import datetime, timezone
+import uuid
 from services.kafka_producer import publish_financial_event
+from config import settings
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 
-@router.post("/invoice/publish")
-async def publish_invoice_event():
-    now = datetime.datetime.utcnow().replace(microsecond=0)
-    invoice_number = "INV-0001"
-    tenant_id = settings.TEST_TENANT_ID
-    contact_id = settings.DEV_CONTACT_ID
-
-    net = Decimal("1000.00")
-    tax = Decimal("180.00")
-    gross = net + tax
-
-    async with AsyncSessionLocal() as session:
-        async with session.begin():
-            tx_id = await create_transaction_header(
-                session,
-                tenant_id=tenant_id,
-                transaction_number=invoice_number,
-                contact_id=contact_id,
-                transaction_date=now,
-                due_date=now,
-                subtotal=net,
-                tax_amount=tax,
-                total_amount=gross,
-                created_by=settings.SYSTEM_USER_ID,
-            )
-
-    event = {
-        "event_id": str(uuid.uuid4()),
-        "schema_version": 1,
-        "tenant_id": tenant_id,
-        "transaction_id": str(tx_id),
-        "type": "invoice_created",
-        "occurred_at": now.isoformat() + "Z",
-        "payload": {
-            "invoice_number": invoice_number,
-            "invoice_date": now.date().isoformat(),
-            "due_date": now.date().isoformat(),
-            "lines": [{"product_id": str(uuid.uuid4()), "qty": 1, "unit_price": float(net), "tax_rate": 0.18}],
-            "currency": "INR",
-        },
-    }
-    publish_financial_event(event)
-    return {"status": "queued", "transaction_id": str(tx_id)}
+# ---------- A) CUSTOMER PAYMENT ----------
+class CustomerPaymentIn(BaseModel):
+    amount: float
+    method: str  # "cash" or "bank"
+    note: str | None = None
+    invoice_id: str | None = None  # optional link
 
 @router.post("/customer-payment/publish")
-async def publish_customer_payment_event():
-    now = datetime.datetime.utcnow().replace(microsecond=0)
-    payment_number = "PAY-0001"
-    tenant_id = settings.TEST_TENANT_ID
-    contact_id = settings.DEV_CONTACT_ID
-
-    amount = Decimal("500.00")
-
-    async with AsyncSessionLocal() as session:
-        async with session.begin():
-            tx_id = await create_transaction_header(
-                session,
-                tenant_id=tenant_id,
-                transaction_number=payment_number,
-                contact_id=contact_id,
-                transaction_date=now,
-                due_date=now,
-                subtotal=amount,
-                tax_amount=Decimal("0.00"),
-                total_amount=amount,
-                created_by=settings.SYSTEM_USER_ID,
-            )
-
+async def publish_customer_payment(body: CustomerPaymentIn):
+    tx_id = str(uuid.uuid4())
     event = {
         "event_id": str(uuid.uuid4()),
         "schema_version": 1,
-        "tenant_id": tenant_id,
-        "transaction_id": str(tx_id),
-        "type": "customer_payment_received",
-        "occurred_at": now.isoformat() + "Z",
+        "tenant_id": settings.TEST_TENANT_ID,
+        "transaction_id": tx_id,
+        "type": "payment_recorded",
+        "occurred_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z"),
         "payload": {
-            "payment_number": payment_number,
-            "payment_date": now.date().isoformat(),
-            "amount": float(amount),
-            "currency": "INR",
+            "amount": body.amount,
+            "method": body.method.lower().strip(),
+            "note": body.note,
+            "invoice_id": body.invoice_id,
+            # accounts (defaults from env)
+            "ar_account_id": settings.AR_ACCOUNT_ID,
+            "cash_account_id": settings.CASH_ACCOUNT_ID,
+            "bank_account_id": settings.BANK_ACCOUNT_ID,
         },
     }
     publish_financial_event(event)
-    return {"status": "queued", "transaction_id": str(tx_id)}
+    return {"status": "queued", "transaction_id": tx_id}
+
+# ---------- B) VENDOR BILL ----------
+class VendorBillLine(BaseModel):
+    qty: float = 1
+    unit_price: float
+    tax_rate: float = 0
+
+class VendorBillIn(BaseModel):
+    bill_number: str
+    lines: list[VendorBillLine]
 
 @router.post("/purchases/vendor-bill/publish")
-async def publish_vendor_bill_event():
-    now = datetime.datetime.utcnow().replace(microsecond=0)
-    bill_number = "BILL-0001"
-    tenant_id = settings.TEST_TENANT_ID
-    contact_id = settings.DEV_CONTACT_ID
-
-    net = Decimal("500.00")
-    tax = net * Decimal("0.18")
-    gross = net + tax
-
-    async with AsyncSessionLocal() as session:
-        async with session.begin():
-            tx_id = await create_transaction_header(
-                session,
-                tenant_id=tenant_id,
-                transaction_number=bill_number,
-                contact_id=contact_id,
-                transaction_date=now,
-                due_date=now,
-                subtotal=net,
-                tax_amount=tax,
-                total_amount=gross,
-                created_by=settings.SYSTEM_USER_ID,
-            )
-
+async def publish_vendor_bill(body: VendorBillIn):
+    tx_id = str(uuid.uuid4())
     event = {
         "event_id": str(uuid.uuid4()),
         "schema_version": 1,
-        "tenant_id": tenant_id,
-        "transaction_id": str(tx_id),
+        "tenant_id": settings.TEST_TENANT_ID,
+        "transaction_id": tx_id,
         "type": "bill_created",
-        "occurred_at": now.isoformat() + "Z",
+        "occurred_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z"),
         "payload": {
-            "bill_number": bill_number,
-            "bill_date": now.date().isoformat(),
-            "lines": [{"qty": 1, "unit_price": float(net), "tax_rate": 0.18}],
+            "bill_number": body.bill_number,
+            "lines": [l.model_dump() for l in body.lines],
+            # accounts
             "expense_account_id": settings.EXPENSE_ACCOUNT_ID,
             "ap_account_id": settings.AP_ACCOUNT_ID,
             "input_tax_account_id": settings.INPUT_TAX_ACCOUNT_ID,
         },
     }
     publish_financial_event(event)
-    return {"status": "queued", "transaction_id": str(tx_id)}
+    return {"status": "queued", "transaction_id": tx_id}
+
+# ---------- C) VENDOR PAYMENT ----------
+class VendorPaymentIn(BaseModel):
+    amount: float
+    method: str  # "cash" or "bank"
+    note: str | None = None
+    bill_id: str | None = None
 
 @router.post("/purchases/vendor-payment/publish")
-async def publish_vendor_payment_event():
-    now = datetime.datetime.utcnow().replace(microsecond=0)
-    payment_number = "PAY-0002"
-    tenant_id = settings.TEST_TENANT_ID
-    contact_id = settings.DEV_CONTACT_ID
-
-    amount = Decimal("590.00")
-
-    async with AsyncSessionLocal() as session:
-        async with session.begin():
-            tx_id = await create_transaction_header(
-                session,
-                tenant_id=tenant_id,
-                transaction_number=payment_number,
-                contact_id=contact_id,
-                transaction_date=now,
-                due_date=now,
-                subtotal=amount,
-                tax_amount=Decimal("0.00"),
-                total_amount=amount,
-                created_by=settings.SYSTEM_USER_ID,
-            )
-
+async def publish_vendor_payment(body: VendorPaymentIn):
+    tx_id = str(uuid.uuid4())
     event = {
         "event_id": str(uuid.uuid4()),
         "schema_version": 1,
-        "tenant_id": tenant_id,
-        "transaction_id": str(tx_id),
+        "tenant_id": settings.TEST_TENANT_ID,
+        "transaction_id": tx_id,
         "type": "vendor_payment_recorded",
-        "occurred_at": now.isoformat() + "Z",
+        "occurred_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z"),
         "payload": {
-            "amount": float(amount),
-            "method": "bank",
+            "amount": body.amount,
+            "method": body.method.lower().strip(),
+            "note": body.note,
+            "bill_id": body.bill_id,
+            # accounts
             "ap_account_id": settings.AP_ACCOUNT_ID,
             "cash_account_id": settings.CASH_ACCOUNT_ID,
             "bank_account_id": settings.BANK_ACCOUNT_ID,
-            "bill_id": None,  # Optional link to bill
         },
     }
     publish_financial_event(event)
-    return {"status": "queued", "transaction_id": str(tx_id)}
+    return {"status": "queued", "transaction_id": tx_id}
