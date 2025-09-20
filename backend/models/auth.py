@@ -1,3 +1,5 @@
+# Define what a user and their role would look like 
+
 from typing import List, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
