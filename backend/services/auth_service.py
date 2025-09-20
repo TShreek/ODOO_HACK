@@ -1,0 +1,45 @@
+# This file is where we handle password hashing and JWT token creation. 
+# Core logic that makes our authentication system secure.
+
+import bcrypt
+import jwt
+from datetime import datetime, timedelta
+from fastapi import HTTPException
+from typing import Optional
+
+from shiv_accounts_cloud.schemas.auth import UserLogin, Token
+
+
+# Placeholder for environment variables. We will define these in config.py
+SECRET_KEY = "ASASASASASASAA"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+
+def get_hashed_password(password: str) -> str:
+    """
+    Hashes a password using bcrypt.
+    """
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    """
+    Verifies a password against its hash.
+    """
+    return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """
+    Creates a JWT access token with an optional expiration time.
+    The payload includes the user's login_id and role.
+    """
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
