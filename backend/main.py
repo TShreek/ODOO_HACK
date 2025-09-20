@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 # Import routers
 from api import auth, masters
+from api.transactions import router as transactions_router
 from database import create_db_and_tables
 
 
@@ -32,6 +33,7 @@ app = FastAPI(
 # Include API routers
 app.include_router(auth.router, prefix="/api/v1", tags=["Authentication"])
 app.include_router(masters.router, prefix="/api/v1")
+app.include_router(transactions_router)
 
 
 @app.get("/", tags=["Health Check"])
