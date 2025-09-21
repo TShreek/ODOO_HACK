@@ -1,35 +1,42 @@
-# Shiv Accounts Cloud — Local Runbook (Kafka + FastAPI + Postgres)
+# Shiv Accounts Cloud — Local Runbook (Kafka + FastAPI + Postgres + LangChain)
 
-## What you get
+## 🎯 Overview
 
-Event-driven accounting skeleton with:
+Shiv Accounts Cloud is an **event-driven accounting skeleton** designed for experimentation and learning.  
+It combines modern backend technologies to demonstrate **financial transaction flows**, **real-time reporting**, and **AI-driven natural language insights**.
 
-- **FastAPI app** (publishes events, exposes reports & health)
-- **Kafka producer/consumer pipeline**
-- **Async SQLAlchemy** (Postgres) with Alembic migrations
-- **Idempotency** via `processed_events`
-- **Minimal accounting engine** that writes `journal_entries`
-- **Langchain chatbot which can connect to our postgres database and produce results from natural language queries
+### What you get
 
+- **FastAPI app** → publishes events, exposes reporting endpoints & health checks  
+- **Kafka pipeline** → producer/consumer for transaction streaming  
+- **Async SQLAlchemy + Postgres** → persistence with Alembic migrations  
+- **Idempotent processing** → via `processed_events` table  
+- **Minimal accounting engine** → converts transactions into `journal_entries`  
+- **LangChain chatbot** → connects to Postgres and answers **natural language queries** over your financial data  
 
+---
 
- ## youtube video Link 🔗 : [https://www.youtube.com/watch?v=hyw7n2wjiMQ](https://youtu.be/L68yxsishsU)
-Problem Statement #2 
+## 📺 Demo Video
 
- 
-## Directory highlights
+YouTube: [https://youtu.be/L68yxsishsU](https://youtu.be/L68yxsishsU)
 
-```
+---
+
+## 📂 Directory Highlights
+
+```bash
 backend/
-  api/ (transactions, reports, health)
+  api/                       # FastAPI endpoints (transactions, reports, health)
   consumers/transaction_consumer.py
-  services/kafka_producer.py, accounting_engine.py
-  models/ (transactions, masters, events)
-  alembic/ (migrations)
+  services/                  # kafka_producer.py, accounting_engine.py
+  models/                    # transactions, masters, events
+  alembic/                   # migrations
   main.py, config.py, database.py
 
-docker-compose.kafka.yml, docker-compose.db.yml
-.env (you create this)
+docker-compose.kafka.yml     # Kafka + Zookeeper
+docker-compose.db.yml        # Postgres
+.env                         # you create this
+
 ```
 
 ## Prerequisites
