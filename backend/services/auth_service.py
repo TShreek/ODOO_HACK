@@ -5,7 +5,6 @@ import bcrypt
 import jwt as pyjwt
 from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import HTTPException, status
 
 from schemas.auth import UserLogin, Token
 from config import settings
@@ -39,14 +38,3 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     to_encode.update({"exp": expire})
     encoded_jwt = pyjwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
-
-
-def verify_permissions(required_permission: int, user_permission: int):
-    """
-    Verifies if the user's permission level meets or exceeds the required level.
-    """
-    if user_permission < required_permission:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Insufficient permissions"
-        )

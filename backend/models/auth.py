@@ -28,10 +28,6 @@ class Role(Base):
         default=datetime.utcnow,
         nullable=False
     )
-    permissions: Mapped[int] = mapped_column(
-        nullable=False,
-        default=1  # Default permission level (e.g., 1 for consumer)
-    )
 
     users: Mapped[List["User"]] = relationship("User", back_populates="role")
 
