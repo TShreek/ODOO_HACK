@@ -18,7 +18,7 @@ It combines modern backend technologies to demonstrate **financial transaction f
 
 ## 📺 Demo Video
 
-YouTube: [https://youtu.be/L68yxsishsU](https://youtu.be/L68yxsishsU)
+YouTube: [[https://youtu.be/L68yxsishsU](https://youtu.be/L68yxsishsU](https://youtu.be/hyw7n2wjiMQ))
 
 ---
 
