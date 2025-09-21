@@ -25,9 +25,9 @@ const navigation = [
     name: 'Purchase',
     icon: ShoppingCart,
     children: [
-      { name: 'Purchase Orders', href: '/purchase/orders', icon: FileText },
-      { name: 'Vendor Bills', href: '/purchase/bills', icon: Receipt },
-      { name: 'Vendor Payments', href: '/purchase/payments', icon: CreditCard },
+  { name: 'Purchase Orders', href: '/purchases/orders', icon: FileText },
+  { name: 'Vendor Bills', href: '/purchases/bills', icon: Receipt },
+  { name: 'Vendor Payments', href: '/purchases/payments', icon: CreditCard },
     ]
   },
   

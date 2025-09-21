@@ -116,9 +116,12 @@
 		.card { @apply rounded-xl; }
 		.modal-content { @apply mx-4 rounded-xl; }
 	}
-	@media (prefers-color-scheme: dark) {
-		.card { @apply bg-gray-800 border-gray-700; }
-		.input { @apply bg-gray-800 border-gray-700 text-white; }
+	/* Optional dark theme (apply class 'theme-dark' on a parent element to activate) */
+	.theme-dark .card {
+		@apply bg-gray-800 border-gray-700;
+	}
+	.theme-dark .input {
+		@apply bg-gray-800 border-gray-700 text-white;
 	}
 }
 

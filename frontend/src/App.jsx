@@ -87,6 +87,9 @@ function App() {
             
             {/* Purchase Routes */}
             <Route path="purchases/orders" element={<PurchaseOrdersPage />} />
+            <Route path="purchases/orders/new" element={<PurchaseOrdersPage mode="create" />} />
+            <Route path="purchases/orders/:id" element={<PurchaseOrdersPage mode="view" />} />
+            <Route path="purchases/orders/:id/edit" element={<PurchaseOrdersPage mode="edit" />} />
             <Route path="purchases/bills" element={<div className="p-8 text-center text-gray-500">Vendor Bills page coming soon...</div>} />
             <Route path="purchases/payments" element={<div className="p-8 text-center text-gray-500">Vendor Payments page coming soon...</div>} />
             
