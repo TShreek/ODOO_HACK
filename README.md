@@ -10,6 +10,13 @@ Event-driven accounting skeleton with:
 - **Idempotency** via `processed_events`
 - **Minimal accounting engine** that writes `journal_entries`
 
+
+ ## youtube video Link 🔗 :
+frontend : https://youtu.be/L68yxsishsU
+backend : 
+
+
+ 
 ## Directory highlights
 
 ```
