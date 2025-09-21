@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { Plus, Search, Edit, Trash2, Eye, Calendar, User, Package } from 'lucide-react'
 import { api, formatMoney } from '../../lib/api'
 import PurchaseOrderForm from './PurchaseOrderForm'
 
-const PurchaseOrdersPage = () => {
+const PurchaseOrdersPage = ({ mode }) => {
+  const params = useParams()
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [showForm, setShowForm] = useState(false)
@@ -84,6 +86,25 @@ const PurchaseOrdersPage = () => {
     order.po_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
     order.vendor_name.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  // Sync route-based modes
+  useEffect(() => {
+    if (mode === 'create') {
+      setShowForm(true)
+      setEditingOrder(null)
+    } else if (mode === 'edit' && params.id) {
+      const existing = orders.find(o => String(o.id) === String(params.id))
+      if (existing) {
+        setEditingOrder(existing)
+        setShowForm(true)
+      }
+    } else if (mode === 'view' && params.id) {
+      const existing = orders.find(o => String(o.id) === String(params.id))
+      if (existing) {
+        setViewingOrder(existing)
+      }
+    }
+  }, [mode, params.id, orders])
 
   return (
     <div className="space-y-6">
