@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from datetime import timedelta
 
 from database import get_db_session
@@ -9,25 +10,31 @@ from schemas.auth import UserCreate, UserLogin, Token
 from crud.users import create_user, get_user_by_login_id
 from services.auth_service import verify_password, create_access_token
 from config import settings
+from models import Role  # Assuming Role is defined in models
 
 router = APIRouter(tags=["Auth"])
 
 
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
-async def register_user(user_data: UserCreate, db: AsyncSession = Depends(get_db_session)):
+async def register_user(user_data: UserCreate, db: AsyncSession = Depends(get_db_session), role_name: str = "consumer"):
     """
     Registers a new user and returns a JWT token.
     """
     existing_user = await get_user_by_login_id(db, user_data.login_id)
     if existing_user:
         raise HTTPException(status_code=400, detail="Login ID already registered")
-    
-    # We will register a new user with the 'invoicing_user' role by default.
-    user = await create_user(db, user_data, role_name="invoicing_user")
-    
+
+    # Assign the role dynamically or default to 'consumer'
+    role = await db.execute(select(Role).where(Role.name == role_name))
+    role = role.scalar()
+    if not role:
+        raise HTTPException(status_code=400, detail="Invalid role")
+
+    user = await create_user(db, user_data, role_name=role.name)
+
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.login_id, "role": user.role.name, "tenant_id": str(user.tenant_id)}, 
+        data={"sub": user.login_id, "role": user.role.name, "permissions": role.permissions, "tenant_id": str(user.tenant_id)}, 
         expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}

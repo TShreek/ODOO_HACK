@@ -6,9 +6,10 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from database import get_db_session
-from models.auth import User
+from models.auth import User, Role
 from crud.users import get_user_by_login_id
 from config import settings
 
@@ -85,3 +86,21 @@ def require_role(required_role: str):
             )
         return current_user
     return role_checker
+
+
+async def seed_roles(db: AsyncSession):
+    roles = [
+        {"name": "consumer", "permissions": 1},
+        {"name": "employee", "permissions": 2},
+        {"name": "admin", "permissions": 3},
+    ]
+
+    for role_data in roles:
+        existing_role = await db.execute(
+            select(Role).where(Role.name == role_data["name"])
+        )
+        if not existing_role.scalar():
+            new_role = Role(name=role_data["name"], permissions=role_data["permissions"])
+            db.add(new_role)
+
+    await db.commit()

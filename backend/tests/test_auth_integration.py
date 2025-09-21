@@ -13,6 +13,7 @@ import uuid
 from main import app
 from database import Base, get_db_session
 from config import settings
+from dependencies import seed_roles
 
 # Test database URL (use in-memory SQLite for tests)
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
@@ -225,6 +226,28 @@ class TestAuthSystem:
             headers = {"Authorization": f"Bearer {token}"}
             response = client.get("/api/v1/masters/contacts", headers=headers)
             assert response.status_code != 401, f"Token {token_name} should be valid"
+
+    @pytest.mark.asyncio
+    async def test_role_permissions(self):
+        """
+        Test role-based permissions for endpoints.
+        """
+        # Seed roles
+        async with get_db_session() as db:
+            await seed_roles(db)
+
+        # Create a user with 'consumer' role
+        response = client.post(
+            "/register",
+            json={"login_id": "consumer1", "password": "password123", "name": "Consumer User", "email_id": "consumer1@example.com"}
+        )
+        assert response.status_code == 201
+        token = response.json()["access_token"]
+
+        # Test access to an endpoint requiring 'employee' permissions
+        headers = {"Authorization": f"Bearer {token}"}
+        response = client.get("/some-employee-endpoint", headers=headers)
+        assert response.status_code == 403  # Insufficient permissions
 
 
 if __name__ == "__main__":
