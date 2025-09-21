@@ -152,31 +152,33 @@ const Sidebar = () => {
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
-      {/* Logo */}
-      <div className="flex items-center px-6 py-5 border-b border-gray-200">
-        <div className="flex items-center">
-          <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl shadow-sm">
-            <span className="text-sm font-bold text-white">SA</span>
-          </div>
-          <div className="ml-3">
-            <h1 className="text-lg font-bold text-gray-900">Shiv Accounts</h1>
-            <p className="text-xs text-gray-500">ERP System</p>
-          </div>
+      {/* Logo / Brand */}
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl shadow-sm">
+          <span className="text-sm font-bold text-white">SA</span>
+        </div>
+        <div className="leading-tight">
+          <h1 className="text-base font-semibold text-gray-900">Shiv Accounts</h1>
+          <p className="text-[11px] tracking-wide text-gray-500">ERP System</p>
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-2 overflow-y-auto">
-        {navigation.map((item) => (
-          <NavItem key={item.name} item={item} />
-        ))}
-      </nav>
+      {/* Scrollable Nav Area */}
+      <div className="flex-1 overflow-hidden">
+        <nav className="h-full overflow-y-auto px-3 py-5 space-y-4 custom-scrollbar">
+          {navigation.map((item, idx) => (
+            <div key={item.name} className="first:pt-0">
+              <NavItem item={item} />
+            </div>
+          ))}
+        </nav>
+      </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-gray-200 bg-gray-25">
-        <div className="text-center">
-          <p className="text-xs text-gray-500 font-medium">© 2025 Shiv Accounts</p>
-          <p className="text-xs text-gray-400 mt-1">v1.0.0</p>
+      <div className="px-5 py-3 border-t border-gray-200 bg-gray-25">
+        <div className="text-center leading-tight">
+          <p className="text-[11px] text-gray-500 font-medium">© 2025 Shiv Accounts</p>
+          <p className="text-[11px] text-gray-400">v1.0.0</p>
         </div>
       </div>
     </div>
