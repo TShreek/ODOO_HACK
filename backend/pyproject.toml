@@ -24,6 +24,7 @@ dependencies = [
     "langchain-core>=0.3.76",
     "groq>=0.31.1",
     "langchain-groq>=0.3.8",
+    "pytest>=8.4.2",
 ]
 
 [project.optional-dependencies]
