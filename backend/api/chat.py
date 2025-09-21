@@ -5,6 +5,7 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from services.llm.tools import create_customer_invoice  # Import your new tool
+from services.llm.tools_sql import sql_ask, sql_run, sql_describe
 from config import settings
 
 router = APIRouter()
@@ -18,11 +19,18 @@ class ChatRequest(BaseModel):
 llm = ChatGroq(temperature=0, model="openai/gpt-oss-20b", groq_api_key=settings.GROQ_API_KEY)
 
 # List of all available tools for the agent.
-tools = [create_customer_invoice]
+tools = [create_customer_invoice, sql_ask, sql_run, sql_describe]
 
 # Define the agent's instructions (system prompt).
 prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are an AI assistant for Shiv Accounts Cloud. Your role is to help users by performing accounting tasks. You can call the provided tools to assist with tasks."),
+    ("system",
+     "You are the Shiv Accounts Cloud assistant. "
+     "If the user asks about data or tables, prefer calling the SQL tools:\n"
+     "- Use `sql_describe` to show tables/columns.\n"
+     "- Use `sql_ask` to answer questions by generating SQL.\n"
+     "- Use `sql_run` ONLY when the user provides explicit SQL.\n"
+     "Otherwise, you can perform accounting tasks via available tools."
+    ),
     ("human", "{input}"),
     ("placeholder", "{agent_scratchpad}"),
 ])

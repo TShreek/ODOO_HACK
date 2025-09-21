@@ -5,8 +5,8 @@ from pydantic import Field
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Explicitly load the .env file from the root directory
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"))
 
 class Settings(BaseSettings):
     # Core
@@ -39,8 +39,9 @@ class Settings(BaseSettings):
     EXPENSE_ACCOUNT_ID: str
     INPUT_TAX_ACCOUNT_ID: str
 
-    # GROQ
-    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+    # NEW (optional) for the SQL agent
+    PG_SYNC_URL: str | None = None
+    GROQ_API_KEY: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",
