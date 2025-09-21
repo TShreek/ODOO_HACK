@@ -7,6 +7,7 @@ from api import auth, masters
 from api.transactions import router as transactions_router
 from api.reports import router as reports_router
 from api.health import router as health_router
+from api.hsn_api_proxy import router as hsn_router
 from database import create_db_and_tables
 
 
@@ -48,6 +49,7 @@ app.include_router(masters.router, prefix="/api/v1")
 app.include_router(transactions_router)
 app.include_router(reports_router)
 app.include_router(health_router)
+app.include_router(hsn_router, prefix="/api/v1")
 
 
 @app.get("/", tags=["Health Check"])
