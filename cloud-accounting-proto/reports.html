@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Cloud Accounting</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-blue-600 hover:text-blue-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </a>
+                    <h1 class="text-xl font-semibold text-gray-800">Reports</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600" id="userEmail"></span>
+                    <button id="logoutBtn" class="btn-secondary">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900">Financial Reports</h2>
+            <p class="text-gray-600">View your business performance and financial position</p>
+        </div>
+
+        <!-- Report Tabs -->
+        <div class="mb-6">
+            <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+                <button class="report-tab-btn active" data-tab="partner-ledger">Partner Ledger</button>
+                <button class="report-tab-btn" data-tab="profit-loss">Profit & Loss</button>
+                <button class="report-tab-btn" data-tab="balance-sheet">Balance Sheet</button>
+            </div>
+        </div>
+
+        <!-- Partner Ledger Tab -->
+        <div id="partner-ledger-tab" class="report-tab-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">Partner Ledger</h3>
+                <div class="flex space-x-4">
+                    <select id="partnerSelect" class="form-select" style="width: 200px;">
+                        <option value="">Select Partner</option>
+                    </select>
+                    <button id="generatePartnerLedger" class="btn-primary">Generate Report</button>
+                </div>
+            </div>
+            
+            <div id="partnerLedgerContent" class="bg-white rounded-lg shadow-sm p-6">
+                <div class="text-center text-gray-500 py-8">
+                    <p>Select a partner to view their ledger</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profit & Loss Tab -->
+        <div id="profit-loss-tab" class="report-tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">Profit & Loss Statement</h3>
+                <div class="flex space-x-4">
+                    <select id="plPeriod" class="form-select" style="width: 150px;">
+                        <option value="30d">Last 30 Days</option>
+                        <option value="90d">Last 90 Days</option>
+                        <option value="1y">Last Year</option>
+                    </select>
+                    <button id="generatePL" class="btn-primary">Generate Report</button>
+                </div>
+            </div>
+            
+            <div id="profitLossContent" class="bg-white rounded-lg shadow-sm p-6">
+                <div class="text-center text-gray-500 py-8">
+                    <p>Click "Generate Report" to view Profit & Loss statement</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Balance Sheet Tab -->
+        <div id="balance-sheet-tab" class="report-tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">Balance Sheet</h3>
+                <div class="flex space-x-4">
+                    <input type="date" id="bsDate" class="form-input" style="width: 150px;">
+                    <button id="generateBS" class="btn-primary">Generate Report</button>
+                </div>
+            </div>
+            
+            <div id="balanceSheetContent" class="bg-white rounded-lg shadow-sm p-6">
+                <div class="text-center text-gray-500 py-8">
+                    <p>Click "Generate Report" to view Balance Sheet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/reports.js"></script>
+</body>
+</html>

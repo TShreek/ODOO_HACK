@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Orders - Cloud Accounting</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-blue-600 hover:text-blue-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </a>
+                    <h1 class="text-xl font-semibold text-gray-800">Sales Orders</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600" id="userEmail"></span>
+                    <button id="logoutBtn" class="btn-secondary">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Sales Orders</h2>
+                <p class="text-gray-600">Manage your sales orders and customer invoices</p>
+            </div>
+            <button id="createSOBtn" class="btn-primary">Create Sales Order</button>
+        </div>
+
+        <!-- Sales Orders List -->
+        <div class="table-container mb-8">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>SO Number</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="soTableBody">
+                    <tr>
+                        <td colspan="6" class="text-center text-gray-500 py-8">Loading sales orders...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Customer Invoices List -->
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Customer Invoices</h3>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Invoice Number</th>
+                            <th>Customer</th>
+                            <th>SO Reference</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoicesTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center text-gray-500 py-8">Loading customer invoices...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Order Modal -->
+    <div id="soModal" class="modal-overlay hidden">
+        <div class="modal" style="max-width: 800px;">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900" id="soModalTitle">Create Sales Order</h3>
+                <button id="closeSOModal" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="soForm" class="space-y-6">
+                <input type="hidden" id="soId">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="soCustomer" class="form-label">Customer *</label>
+                        <select id="soCustomer" name="customerId" class="form-select" required>
+                            <option value="">Select customer</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="soDate" class="form-label">Date *</label>
+                        <input type="date" id="soDate" name="date" class="form-input" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="soNotes" class="form-label">Notes</label>
+                    <textarea id="soNotes" name="notes" class="form-textarea" rows="3"></textarea>
+                </div>
+
+                <!-- Items Section -->
+                <div class="form-group">
+                    <label class="form-label">Items *</label>
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-medium text-gray-900">Sales Order Items</h4>
+                            <button type="button" id="addSOItem" class="btn-outline text-sm">Add Item</button>
+                        </div>
+                        
+                        <div id="soItemsContainer">
+                            <!-- Items will be added dynamically -->
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <div class="flex justify-end space-x-4">
+                                <div class="text-right">
+                                    <div class="text-sm text-gray-600">Subtotal: <span id="soSubtotal">$0.00</span></div>
+                                    <div class="text-sm text-gray-600">Tax: <span id="soTax">$0.00</span></div>
+                                    <div class="text-lg font-semibold text-gray-900">Total: <span id="soTotal">$0.00</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancelSOBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Sales Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Customer Invoice Modal -->
+    <div id="invoiceModal" class="modal-overlay hidden">
+        <div class="modal" style="max-width: 800px;">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900" id="invoiceModalTitle">Create Customer Invoice</h3>
+                <button id="closeInvoiceModal" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="invoiceForm" class="space-y-6">
+                <input type="hidden" id="invoiceId">
+                <input type="hidden" id="invoiceSOReference">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="invoiceCustomer" class="form-label">Customer *</label>
+                        <select id="invoiceCustomer" name="customerId" class="form-select" required>
+                            <option value="">Select customer</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="invoiceDate" class="form-label">Date *</label>
+                        <input type="date" id="invoiceDate" name="date" class="form-input" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="invoiceNotes" class="form-label">Notes</label>
+                    <textarea id="invoiceNotes" name="notes" class="form-textarea" rows="3"></textarea>
+                </div>
+
+                <!-- Items Section -->
+                <div class="form-group">
+                    <label class="form-label">Items *</label>
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-medium text-gray-900">Invoice Items</h4>
+                            <button type="button" id="addInvoiceItem" class="btn-outline text-sm">Add Item</button>
+                        </div>
+                        
+                        <div id="invoiceItemsContainer">
+                            <!-- Items will be added dynamically -->
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <div class="flex justify-end space-x-4">
+                                <div class="text-right">
+                                    <div class="text-sm text-gray-600">Subtotal: <span id="invoiceSubtotal">$0.00</span></div>
+                                    <div class="text-sm text-gray-600">Tax: <span id="invoiceTax">$0.00</span></div>
+                                    <div class="text-lg font-semibold text-gray-900">Total: <span id="invoiceTotal">$0.00</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancelInvoiceBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Customer Invoice</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/transactions.js"></script>
+</body>
+</html>

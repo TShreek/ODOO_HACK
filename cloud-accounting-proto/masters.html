@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Data - Cloud Accounting</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-blue-600 hover:text-blue-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </a>
+                    <h1 class="text-xl font-semibold text-gray-800">Master Data</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600" id="userEmail"></span>
+                    <button id="logoutBtn" class="btn-secondary">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900">Master Data Management</h2>
+            <p class="text-gray-600">Manage your contacts, products, taxes, and chart of accounts</p>
+        </div>
+
+        <!-- Master Data Tabs -->
+        <div class="mb-6">
+            <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+                <button class="master-tab-btn active" data-tab="contacts">Contacts</button>
+                <button class="master-tab-btn" data-tab="products">Products</button>
+                <button class="master-tab-btn" data-tab="taxes">Taxes</button>
+                <button class="master-tab-btn" data-tab="accounts">Chart of Accounts</button>
+            </div>
+        </div>
+
+        <!-- Contacts Tab -->
+        <div id="contacts-tab" class="master-tab-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">Contacts</h3>
+                <button id="addContactBtn" class="btn-primary">Add Contact</button>
+            </div>
+            
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contactsTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center text-gray-500 py-8">Loading contacts...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="products-tab" class="master-tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">Products</h3>
+                <button id="addProductBtn" class="btn-primary">Add Product</button>
+            </div>
+            
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>SKU</th>
+                            <th>HSN Code</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center text-gray-500 py-8">Loading products...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Taxes Tab -->
+        <div id="taxes-tab" class="master-tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">Taxes</h3>
+                <button id="addTaxBtn" class="btn-primary">Add Tax</button>
+            </div>
+            
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Rate (%)</th>
+                            <th>Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="taxesTableBody">
+                        <tr>
+                            <td colspan="4" class="text-center text-gray-500 py-8">Loading taxes...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Chart of Accounts Tab -->
+        <div id="accounts-tab" class="master-tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">Chart of Accounts</h3>
+                <button id="addAccountBtn" class="btn-primary">Add Account</button>
+            </div>
+            
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accountsTableBody">
+                        <tr>
+                            <td colspan="4" class="text-center text-gray-500 py-8">Loading accounts...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900" id="contactModalTitle">Add Contact</h3>
+                <button id="closeContactModal" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="contactForm" class="space-y-4">
+                <input type="hidden" id="contactId">
+                
+                <div class="form-group">
+                    <label for="contactName" class="form-label">Name *</label>
+                    <input type="text" id="contactName" name="name" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contactEmail" class="form-label">Email *</label>
+                    <input type="email" id="contactEmail" name="email" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contactPhone" class="form-label">Phone</label>
+                    <input type="tel" id="contactPhone" name="phone" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="contactType" class="form-label">Type *</label>
+                    <select id="contactType" name="type" class="form-select" required>
+                        <option value="">Select type</option>
+                        <option value="customer">Customer</option>
+                        <option value="vendor">Vendor</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contactAddress" class="form-label">Address</label>
+                    <textarea id="contactAddress" name="address" class="form-textarea" rows="3"></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancelContactBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Contact</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900" id="productModalTitle">Add Product</h3>
+                <button id="closeProductModal" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="productForm" class="space-y-4">
+                <input type="hidden" id="productId">
+                
+                <div class="form-group">
+                    <label for="productName" class="form-label">Name *</label>
+                    <input type="text" id="productName" name="name" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productSku" class="form-label">SKU *</label>
+                    <input type="text" id="productSku" name="sku" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productHsnCode" class="form-label">HSN Code</label>
+                    <input type="text" id="productHsnCode" name="hsnCode" class="form-input" placeholder="Auto-generated">
+                </div>
+                
+                <div class="form-group">
+                    <label for="productPrice" class="form-label">Price *</label>
+                    <input type="number" id="productPrice" name="price" class="form-input" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productDescription" class="form-label">Description</label>
+                    <textarea id="productDescription" name="description" class="form-textarea" rows="3"></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancelProductBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/masters.js"></script>
+</body>
+</html>

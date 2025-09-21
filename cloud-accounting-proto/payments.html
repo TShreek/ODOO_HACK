@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments - Cloud Accounting</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-blue-600 hover:text-blue-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </a>
+                    <h1 class="text-xl font-semibold text-gray-800">Payments</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600" id="userEmail"></span>
+                    <button id="logoutBtn" class="btn-secondary">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Payments</h2>
+                <p class="text-gray-600">Manage bill payments and invoice receipts</p>
+            </div>
+            <button id="createPaymentBtn" class="btn-primary">Record Payment</button>
+        </div>
+
+        <!-- Payments List -->
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Payment #</th>
+                        <th>Date</th>
+                        <th>Partner</th>
+                        <th>Type</th>
+                        <th>Reference</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentsTableBody">
+                    <tr>
+                        <td colspan="8" class="text-center text-gray-500 py-8">Loading payments...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900" id="paymentModalTitle">Record Payment</h3>
+                <button id="closePaymentModal" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="paymentForm" class="space-y-4">
+                <input type="hidden" id="paymentId">
+                
+                <div class="form-group">
+                    <label for="paymentType" class="form-label">Payment Type *</label>
+                    <select id="paymentType" name="type" class="form-select" required>
+                        <option value="">Select type</option>
+                        <option value="payment">Bill Payment</option>
+                        <option value="receipt">Invoice Receipt</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentPartner" class="form-label">Partner *</label>
+                    <select id="paymentPartner" name="partnerId" class="form-select" required>
+                        <option value="">Select partner</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentReference" class="form-label">Reference Document</label>
+                    <select id="paymentReference" name="referenceId" class="form-select">
+                        <option value="">Select reference</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentAmount" class="form-label">Amount *</label>
+                    <input type="number" id="paymentAmount" name="amount" class="form-input" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentDate" class="form-label">Payment Date *</label>
+                    <input type="date" id="paymentDate" name="date" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentMethod" class="form-label">Payment Method *</label>
+                    <select id="paymentMethod" name="method" class="form-select" required>
+                        <option value="">Select method</option>
+                        <option value="cash">Cash</option>
+                        <option value="bank">Bank Transfer</option>
+                        <option value="check">Check</option>
+                        <option value="card">Card</option>
+                        <option value="upi">UPI</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentNotes" class="form-label">Notes</label>
+                    <textarea id="paymentNotes" name="notes" class="form-textarea" rows="3"></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancelPaymentBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Record Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/payments.js"></script>
+</body>
+</html>
