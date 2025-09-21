@@ -11,10 +11,8 @@ Event-driven accounting skeleton with:
 - **Minimal accounting engine** that writes `journal_entries`
 
 
- ## youtube video Link 🔗 :
-frontend : https://youtu.be/L68yxsishsU
-backend : 
-
+ ## youtube video Link 🔗 : https://www.youtube.com/watch?v=hyw7n2wjiMQ
+Problem Statement #2 
 
  
 ## Directory highlights
