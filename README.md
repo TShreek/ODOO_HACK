@@ -15,8 +15,6 @@ It combines modern backend technologies to demonstrate **financial transaction f
 - **LangChain chatbot** → connects to Postgres and answers **natural language queries** over your financial data  
 
 ---
-
-## 📺 Demo Video
 ## 📺 Demo Video
 
 YouTube: [https://youtu.be/hyw7n2wjiMQ](https://youtu.be/hyw7n2wjiMQ)
@@ -38,24 +36,41 @@ docker-compose.kafka.yml     # Kafka + Zookeeper
 docker-compose.db.yml        # Postgres
 .env                         # you create this
 
+## 🖼️ System Architecture
+
+```mermaid
+flowchart LR
+    subgraph Client
+        A[API Requests] -->|HTTP| B(FastAPI App)
+        C[Chatbot Queries] -->|Natural Language| L(LangChain Chatbot)
+    end
+
+    subgraph Backend
+        B -->|Publish Events| K[(Kafka Broker)]
+        K --> C1[Transaction Consumer]
+        C1 -->|Process Events| P[(Postgres DB)]
+        L -->|SQL Queries| P
+    end
+
+    subgraph Reports
+        P --> R1[Profit & Loss Report]
+        P --> R2[Balance Sheet]
+        P --> R3[Stock / Journals]
+    end
+
 ```
-
-## Prerequisites
-
-macOS/Linux with:
-
-- **Docker & Docker Compose**
-- **Python 3.11**
-- **uv** (Python package manager) → `pip install uv` (or follow uv docs)
-- **psql CLI** (or pgAdmin if you prefer UI)
-
-### Ports used:
-
-- **FastAPI**: 8000
-- **Kafka**: 9092 (and UI 8080 if you run it)
-- **Postgres**: 5432
-
----
+ Prerequisites
+macOS/Linux (tested)
+Docker & Docker Compose
+Python 3.11
+uv package manager → pip install uv
+psql CLI (or pgAdmin GUI)
+Ports
+Service	Port
+FastAPI	8000
+Kafka	9092
+Kafka UI	8080
+Postgres	5432
 
 ## Clone & bootstrap the Python env
 
