@@ -15,6 +15,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import ContactsPage from './pages/masters/ContactsPage'
+import ProductMaster from './pages/masters/ProductMaster'
 import ProfitLossPage from './pages/reports/ProfitLossPage'
 import BalanceSheetPage from './pages/reports/BalanceSheetPage'
 import CustomerPaymentsPage from './pages/transactions/CustomerPaymentsPage'
@@ -75,9 +76,12 @@ function App() {
             
             {/* Master Data Routes */}
             <Route path="masters/contacts" element={<ContactsPage />} />
+            <Route path="masters/products" element={<ProductMaster />} />
+            <Route path="masters/products/create" element={<ProductMaster />} />
+            <Route path="masters/products/:id" element={<ProductMaster />} />
+            <Route path="masters/products/:id/edit" element={<ProductMaster />} />
             
             {/* Placeholder routes for future implementation */}
-            <Route path="masters/products" element={<div className="p-8 text-center text-gray-500">Products page coming soon...</div>} />
             <Route path="masters/taxes" element={<div className="p-8 text-center text-gray-500">Taxes page coming soon...</div>} />
             <Route path="masters/accounts" element={<div className="p-8 text-center text-gray-500">Chart of Accounts page coming soon...</div>} />
             

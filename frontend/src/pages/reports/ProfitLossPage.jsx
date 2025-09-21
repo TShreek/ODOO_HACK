@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
 import { Calendar, Download, Filter } from 'lucide-react'
-import { api, formatMoney } from '../../lib/api'
+import apiService from '../../services/apiClient'
+
+// Helper function to format money
+const formatMoney = (amount) => {
+  if (amount == null) return '₹0.00'
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 2
+  }).format(amount)
+}
 
 const ProfitLossPage = () => {
   const [dateRange, setDateRange] = useState({
@@ -11,7 +21,7 @@ const ProfitLossPage = () => {
 
   const { data: reportData, isLoading, error } = useQuery(
     ['profit-loss', dateRange],
-    () => api.reports.profitLoss(dateRange),
+    () => apiService.reports.profitLoss(dateRange),
     {
       enabled: !!dateRange.from_date && !!dateRange.to_date
     }
