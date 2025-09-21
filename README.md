@@ -9,9 +9,11 @@ Event-driven accounting skeleton with:
 - **Async SQLAlchemy** (Postgres) with Alembic migrations
 - **Idempotency** via `processed_events`
 - **Minimal accounting engine** that writes `journal_entries`
+- **Langchain chatbot which can connect to our postgres database and produce results from natural language queries
 
 
- ## youtube video Link 🔗 : https://www.youtube.com/watch?v=hyw7n2wjiMQ
+
+ ## youtube video Link 🔗 : [https://www.youtube.com/watch?v=hyw7n2wjiMQ](https://youtu.be/L68yxsishsU)
 Problem Statement #2 
 
  
