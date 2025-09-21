@@ -24,7 +24,7 @@ View the system in action: [YouTube Demo](https://youtu.be/hyw7n2wjiMQ)
 
 ## System Architecture
 
-![System Architecture](https://github.com/user-attachments/files/17769838/system-architecture.png)
+![System Architecture]([https://github.com/user-attachments/files/17769838/system-architecture.png](https://github.com/TShreek/ODOO_HACK/blob/main/Untitled%20diagram%20%7C%20Mermaid%20Chart-2025-09-21-055332.png))
 
 The system follows a microservices architecture with event-driven communication:
 
