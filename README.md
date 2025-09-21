@@ -38,27 +38,8 @@ docker-compose.db.yml        # Postgres
 
 ## 🖼️ System Architecture
 
-```mermaid
-flowchart LR
-    subgraph Client
-        A[API Requests] -->|HTTP| B(FastAPI App)
-        C[Chatbot Queries] -->|Natural Language| L(LangChain Chatbot)
-    end
+<img width="1021" height="360" alt="Screenshot 2025-09-21 at 11 19 13 AM" src="https://github.com/user-attachments/assets/f53d65de-569f-4bf6-beff-1e5bc8b5820d" />
 
-    subgraph Backend
-        B -->|Publish Events| K[(Kafka Broker)]
-        K --> C1[Transaction Consumer]
-        C1 -->|Process Events| P[(Postgres DB)]
-        L -->|SQL Queries| P
-    end
-
-    subgraph Reports
-        P --> R1[Profit & Loss Report]
-        P --> R2[Balance Sheet]
-        P --> R3[Stock / Journals]
-    end
-
-```
  Prerequisites
 macOS/Linux (tested)
 Docker & Docker Compose
