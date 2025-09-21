@@ -48,7 +48,7 @@ uv run alembic current
 
 # alembic: last 5 revisions
 section "Alembic history (last 5)"
-uv run alembic history -n 5
+uv run alembic history | tail -n 5
 
 # prove tables exist
 section "Postgres tables in ${DB_NAME}"
