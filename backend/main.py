@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers
-from api import auth, masters
+from api import auth, masters, chat
 from api.transactions import router as transactions_router
 from api.reports import router as reports_router
 from api.health import router as health_router
@@ -50,6 +50,7 @@ app.include_router(transactions_router)
 app.include_router(reports_router)
 app.include_router(health_router)
 app.include_router(hsn_router, prefix="/api/v1")
+app.include_router(chat.router)
 
 
 @app.get("/", tags=["Health Check"])

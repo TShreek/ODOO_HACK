@@ -2,6 +2,11 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional, List, Union
 from pydantic import Field
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class Settings(BaseSettings):
     # Core
@@ -33,6 +38,9 @@ class Settings(BaseSettings):
     AP_ACCOUNT_ID: str
     EXPENSE_ACCOUNT_ID: str
     INPUT_TAX_ACCOUNT_ID: str
+
+    # GROQ
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
 
     model_config = SettingsConfigDict(
         env_file=".env",
