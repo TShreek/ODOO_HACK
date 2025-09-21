@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers
 from api import auth, masters
 from api.transactions import router as transactions_router
 from api.reports import router as reports_router
 from api.health import router as health_router
+from api.hsn_api_proxy import router as hsn_router
 from database import create_db_and_tables
 
 
@@ -32,12 +34,22 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# CORS for local static demo (adjust origins for production)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Include API routers
 app.include_router(auth.router, prefix="/api/v1", tags=["Authentication"])
 app.include_router(masters.router, prefix="/api/v1")
 app.include_router(transactions_router)
 app.include_router(reports_router)
 app.include_router(health_router)
+app.include_router(hsn_router, prefix="/api/v1")
 
 
 @app.get("/", tags=["Health Check"])
