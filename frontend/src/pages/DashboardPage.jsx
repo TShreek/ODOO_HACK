@@ -9,7 +9,7 @@ import {
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react'
-import { formatMoney } from '../lib/api'
+import { formatMoney, apiService } from '../services/apiClient'
 
 const StatCard = ({ title, value, change, icon: Icon, trend = 'up' }) => {
   const isPositive = trend === 'up'
@@ -63,16 +63,32 @@ const DashboardPage = () => {
   ])
 
   useEffect(() => {
-    // In a real app, you would fetch this data from your API
-    // For now, we'll use mock data
-    setStats({
-      totalRevenue: 125000,
-      totalExpenses: 78000,
-      netProfit: 47000,
-      contacts: 45,
-      products: 120,
-      pendingInvoices: 8
-    })
+    const fetchDashboardData = async () => {
+      try {
+        const data = await apiService.dashboard.getStats('7d')
+        setStats({
+          totalRevenue: data.totalRevenue,
+          totalExpenses: data.totalExpenses,
+          netProfit: data.netProfit,
+          contacts: data.totalContacts,
+          products: data.totalProducts,
+          pendingInvoices: data.pendingInvoices
+        })
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error)
+        // Fallback to demo data
+        setStats({
+          totalRevenue: 125000,
+          totalExpenses: 78000,
+          netProfit: 47000,
+          contacts: 45,
+          products: 120,
+          pendingInvoices: 8
+        })
+      }
+    }
+
+    fetchDashboardData()
   }, [])
 
   const getActivityIcon = (type) => {

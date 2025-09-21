@@ -1,6 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import { Search, Plus, Filter, MoreVertical, Eye, Edit, Trash2, Calendar, User, Package, DollarSign } from 'lucide-react'
-import { formatMoney, formatDate } from '../../lib/api'
+import apiService from '../../services/apiClient'
+
+// Helper functions
+const formatMoney = (amount) => {
+  if (amount == null) return '₹0.00'
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 2
+  }).format(amount)
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'
+  return new Date(dateString).toLocaleDateString('en-IN', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+}
 import SalesOrderForm from './SalesOrderForm'
 
 const SalesOrdersPage = () => {

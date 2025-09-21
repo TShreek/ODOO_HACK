@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { Plus, Search, Edit, Trash2, Phone, Mail, Building } from 'lucide-react'
-import { api } from '../../lib/api'
+import { apiService } from '../../services/apiClient'
 import ContactForm from './ContactForm'
 
 const ContactsPage = () => {
@@ -13,10 +13,10 @@ const ContactsPage = () => {
 
   const { data: contactsData, isLoading, error } = useQuery(
     ['contacts', currentPage, searchTerm],
-    () => api.masters.contacts.list({
+    () => apiService.contacts.list({
       page: currentPage,
-      per_page: 10,
-      search: searchTerm || undefined
+      size: 10,
+      q: searchTerm || undefined
     }),
     {
       keepPreviousData: true
@@ -24,7 +24,7 @@ const ContactsPage = () => {
   )
 
   const deleteMutation = useMutation(
-    (id) => api.masters.contacts.delete(id),
+    (id) => apiService.contacts.delete(id),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['contacts'])

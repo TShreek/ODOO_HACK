@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { 
   Home, 
@@ -13,7 +13,9 @@ import {
   ShoppingCart,
   TrendingUp,
   Archive,
-  Wallet
+  Wallet,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react'
 
 const navigation = [
@@ -65,6 +67,12 @@ const navigation = [
 
 const Sidebar = () => {
   const location = useLocation()
+  const [expandedSections, setExpandedSections] = useState({
+    'Purchase': false,
+    'Sales': false,
+    'Reports': false,
+    'Master Data': false,
+  })
 
   const isActiveRoute = (href) => {
     if (href === '/') {
@@ -73,21 +81,55 @@ const Sidebar = () => {
     return location.pathname.startsWith(href)
   }
 
+  const toggleSection = (sectionName) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionName]: !prev[sectionName]
+    }))
+  }
+
+  // Auto-expand sections that contain active routes
+  React.useEffect(() => {
+    const activeSection = navigation.find(item => 
+      item.children && item.children.some(child => isActiveRoute(child.href))
+    )
+    if (activeSection) {
+      setExpandedSections(prev => ({
+        ...prev,
+        [activeSection.name]: true
+      }))
+    }
+  }, [location.pathname])
+
   const NavItem = ({ item, isChild = false }) => {
     const Icon = item.icon
+    const isExpanded = expandedSections[item.name]
 
     if (item.children) {
       return (
         <div className="space-y-1">
-          <div className="flex items-center px-3 py-2 text-sm font-medium text-gray-600">
-            <Icon className="mr-3 h-4 w-4" />
-            {item.name}
-          </div>
-          <div className="ml-6 space-y-1">
-            {item.children.map((child) => (
-              <NavItem key={child.name} item={child} isChild />
-            ))}
-          </div>
+          <button
+            onClick={() => toggleSection(item.name)}
+            className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-200"
+          >
+            <div className="flex items-center">
+              <Icon className="mr-3 h-4 w-4" />
+              {item.name}
+            </div>
+            {isExpanded ? (
+              <ChevronDown className="h-4 w-4 text-gray-400" />
+            ) : (
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            )}
+          </button>
+          
+          {isExpanded && (
+            <div className="ml-6 space-y-1 animate-slide-up">
+              {item.children.map((child) => (
+                <NavItem key={child.name} item={child} isChild />
+              ))}
+            </div>
+          )}
         </div>
       )
     }
@@ -95,42 +137,47 @@ const Sidebar = () => {
     return (
       <NavLink
         to={item.href}
-        className={({ isActive }) =>
-          isActive || isActiveRoute(item.href)
-            ? 'sidebar-item-active'
-            : 'sidebar-item-inactive'
-        }
+        className={({ isActive }) => {
+          const active = isActive || isActiveRoute(item.href)
+          return `sidebar-item ${active ? 'sidebar-item-active' : 'sidebar-item-inactive'} ${
+            isChild ? 'ml-2 pl-6' : ''
+          }`
+        }}
       >
-        <Icon className="mr-3 h-4 w-4" />
-        {item.name}
+        <Icon className="mr-3 h-4 w-4 flex-shrink-0" />
+        <span className="truncate">{item.name}</span>
       </NavLink>
     )
   }
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+    <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center px-6 py-4 border-b border-gray-200">
+      <div className="flex items-center px-6 py-5 border-b border-gray-200">
         <div className="flex items-center">
-          <div className="flex items-center justify-center w-8 h-8 bg-primary-600 rounded-lg">
+          <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl shadow-sm">
             <span className="text-sm font-bold text-white">SA</span>
           </div>
           <div className="ml-3">
-            <h1 className="text-lg font-semibold text-gray-900">Shiv Accounts</h1>
+            <h1 className="text-lg font-bold text-gray-900">Shiv Accounts</h1>
+            <p className="text-xs text-gray-500">ERP System</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-2 overflow-y-auto">
         {navigation.map((item) => (
           <NavItem key={item.name} item={item} />
         ))}
       </nav>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-gray-200">
-        <p className="text-xs text-gray-500">© 2025 Shiv Accounts</p>
+      <div className="px-6 py-4 border-t border-gray-200 bg-gray-25">
+        <div className="text-center">
+          <p className="text-xs text-gray-500 font-medium">© 2025 Shiv Accounts</p>
+          <p className="text-xs text-gray-400 mt-1">v1.0.0</p>
+        </div>
       </div>
     </div>
   )

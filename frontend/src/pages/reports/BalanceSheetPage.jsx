@@ -1,14 +1,24 @@
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 import { Calendar, Download, Building } from 'lucide-react'
-import { api, formatMoney } from '../../lib/api'
+import apiService from '../../services/apiClient'
+
+// Helper function to format money
+const formatMoney = (amount) => {
+  if (amount == null) return '₹0.00'
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 2
+  }).format(amount)
+}
 
 const BalanceSheetPage = () => {
   const [asOfDate, setAsOfDate] = useState(new Date().toISOString().split('T')[0])
 
   const { data: reportData, isLoading, error } = useQuery(
     ['balance-sheet', asOfDate],
-    () => api.reports.balanceSheet({ as_of: asOfDate }),
+    () => apiService.reports.balanceSheet({ as_of: asOfDate }),
     {
       enabled: !!asOfDate
     }
